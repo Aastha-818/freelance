@@ -1,0 +1,1800 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>The Hole in the Wall Cafe — Koramangala, Bangalore</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600;1,700&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Bebas+Neue&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+<style>
+/* ══════════════════════════════
+   RESET & TOKENS
+══════════════════════════════ */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --ink:    #0f0d09;
+  --cream:  #f4ede0;
+  --warm:   #ede0c8;
+  --amber:  #c8852a;
+  --rust:   #b84228;
+  --gold:   #d4a843;
+  --sage:   #687a58;
+  --muted:  rgba(244,237,224,0.45);
+  --border: rgba(200,133,42,0.2);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--ink);
+  color: var(--cream);
+  font-family: 'DM Mono', monospace;
+  cursor: none;
+  overflow-x: hidden;
+}
+
+/* ── GRAIN ── */
+body::after {
+  content: '';
+  position: fixed; inset: 0; z-index: 9500; pointer-events: none;
+  opacity: 0.032;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 256px 256px;
+}
+
+/* ── CURSOR ── */
+.cur  { position:fixed; width:10px; height:10px; background:var(--amber); border-radius:50%; pointer-events:none; z-index:9999; transform:translate(-50%,-50%); transition:width .25s,height .25s,background .25s; mix-blend-mode:screen; }
+.cur2 { position:fixed; width:34px; height:34px; border:1px solid var(--amber); border-radius:50%; pointer-events:none; z-index:9998; transform:translate(-50%,-50%); opacity:.5; transition:transform .14s ease; }
+
+/* ══════════════════════════════
+   LOADER
+══════════════════════════════ */
+#loader {
+  position: fixed; inset: 0; z-index: 8000;
+  background: var(--ink);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 20px;
+  overflow: hidden;
+}
+.ld-ring {
+  width: 120px; height: 120px; position: relative;
+}
+.ld-ring svg { width: 100%; height: 100%; animation: spin 2s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.ld-ring-center {
+  position: absolute; inset: 0; display: flex;
+  align-items: center; justify-content: center;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 28px; color: var(--amber); letter-spacing: 0.05em;
+}
+.ld-word {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(48px, 10vw, 96px); font-weight: 700; font-style: italic;
+  color: var(--cream); letter-spacing: -0.02em;
+  overflow: hidden;
+}
+.ld-word span { display: inline-block; }
+.ld-bar-wrap { width: 240px; height: 1px; background: rgba(200,133,42,0.2); }
+.ld-bar { height: 100%; width: 0; background: var(--amber); transition: width 1.4s cubic-bezier(.4,0,.2,1); }
+.ld-sub { font-size: 10px; letter-spacing: 0.35em; text-transform: uppercase; color: var(--amber); opacity: 0; }
+
+/* ══════════════════════════════
+   NAV
+══════════════════════════════ */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 28px 48px;
+  transition: padding .4s, background .4s;
+}
+nav.scrolled {
+  background: rgba(15,13,9,0.92); backdrop-filter: blur(16px);
+  padding: 18px 48px;
+  border-bottom: 1px solid var(--border);
+}
+.nav-logo {
+  font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 700;
+  color: var(--cream); text-decoration: none; letter-spacing: -0.01em;
+}
+.nav-logo em { color: var(--amber); font-style: italic; }
+.nav-links { display: flex; gap: 36px; list-style: none; }
+.nav-links a { font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--muted); text-decoration: none; transition: color .2s; }
+.nav-links a:hover { color: var(--cream); }
+.nav-order {
+  background: var(--amber); color: var(--ink) !important;
+  padding: 10px 24px; letter-spacing: 0.18em !important;
+  font-weight: 500; transition: background .2s !important;
+}
+.nav-order:hover { background: var(--gold) !important; color: var(--ink); }
+
+/* ══════════════════════════════
+   HERO  — full-screen image with overlay text
+══════════════════════════════ */
+#hero {
+  height: 100vh; min-height: 700px;
+  position: relative; overflow: hidden;
+  display: flex; flex-direction: column;
+  background: var(--ink);
+}
+
+/* Full-screen slideshow behind everything */
+.hero-slides {
+  position: absolute; inset: 0; z-index: 0;
+}
+.hero-slide {
+  position: absolute; inset: 0;
+  opacity: 0; transition: opacity 1.4s cubic-bezier(.4,0,.2,1);
+}
+.hero-slide.active { opacity: 1; }
+.hero-slide-img {
+  width: 100%; height: 100%; object-fit: cover;
+  transform: scale(1.07);
+  transition: transform 8s cubic-bezier(.25,0,.05,1);
+  filter: brightness(0.5) saturate(0.85);
+}
+.hero-slide.active .hero-slide-img { transform: scale(1); }
+
+/* Cinematic gradient overlay — dark left for text legibility, lighter right */
+.hero-img-overlay {
+  position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background:
+    linear-gradient(105deg,
+      rgba(15,13,9,0.92) 0%,
+      rgba(15,13,9,0.75) 35%,
+      rgba(15,13,9,0.35) 65%,
+      rgba(15,13,9,0.15) 100%),
+    linear-gradient(to top,
+      rgba(15,13,9,0.7) 0%,
+      transparent 40%);
+}
+
+/* ── LEFT PANEL (text content) — floats over full-screen image ── */
+.hero-left-panel {
+  position: relative; z-index: 2;
+  display: flex; flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  width: 55%; /* takes left portion, image bleeds full behind */
+}
+
+/* right panel is invisible — just a placeholder so right side shows image */
+.hero-right-panel { display: none; }
+
+/* top nav area filler */
+.hero-left-top {
+  padding: 130px 64px 0;
+  flex: 1; display: flex; flex-direction: column; justify-content: center;
+}
+
+.hero-eyebrow {
+  display: flex; align-items: center; gap: 14px;
+  font-size: 9px; letter-spacing: 0.38em; text-transform: uppercase;
+  color: var(--amber); margin-bottom: 28px; opacity: 0;
+}
+.hero-eyebrow-line { width: 36px; height: 1px; background: var(--amber); }
+.hero-eyebrow-dot {
+  width: 5px; height: 5px; background: var(--amber); border-radius: 50%;
+  animation: ebPulse 2s ease-in-out infinite;
+}
+@keyframes ebPulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(1.5)} }
+
+/* Giant stacked headline */
+.hero-headline {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(64px, 9vw, 148px);
+  line-height: 0.86; color: var(--cream);
+  letter-spacing: 0.01em;
+}
+.hero-headline .hh-line { display: block; overflow: hidden; }
+.hero-headline .hh-word { display: inline-block; transform: translateY(110%); }
+.hero-headline em {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic; font-weight: 300;
+  color: var(--amber); font-size: 0.82em;
+  letter-spacing: -0.01em;
+}
+
+.hero-tagline {
+  font-family: 'Cormorant Garamond', serif; font-style: italic;
+  font-size: clamp(16px, 1.6vw, 21px); color: rgba(244,237,224,0.65);
+  line-height: 1.65; margin-top: 24px; max-width: 400px;
+  opacity: 0; transform: translateY(16px);
+}
+
+.hero-btn-row {
+  display: flex; gap: 12px; margin-top: 40px;
+  opacity: 0; transform: translateY(16px);
+}
+.btn-solid {
+  background: var(--amber); color: var(--ink);
+  padding: 16px 40px; font-family: 'DM Mono', monospace;
+  font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase;
+  text-decoration: none; font-weight: 500;
+  transition: background .2s, transform .2s; display: inline-block;
+}
+.btn-solid:hover { background: var(--gold); transform: translateY(-2px); }
+.btn-ghost {
+  border: 1px solid rgba(244,237,224,0.3); color: var(--cream);
+  padding: 16px 40px; font-family: 'DM Mono', monospace;
+  font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase;
+  text-decoration: none; transition: border-color .2s, background .2s; display: inline-block;
+}
+.btn-ghost:hover { border-color: var(--amber); background: rgba(200,133,42,0.08); }
+
+/* scroll indicator */
+.hero-scroll-wrap {
+  padding: 0 64px 40px;
+  display: flex; align-items: center; gap: 14px;
+  opacity: 0;
+}
+.hero-scroll-line {
+  width: 1px; height: 48px; background: rgba(244,237,224,0.12);
+  position: relative; overflow: hidden;
+}
+.hero-scroll-line::after {
+  content: ''; position: absolute; top: -100%; left: 0;
+  width: 100%; height: 100%; background: var(--amber);
+  animation: sDrop 1.8s ease-in-out infinite;
+}
+@keyframes sDrop { 0%{top:-100%} 100%{top:100%} }
+.hero-scroll-label {
+  font-size: 8px; letter-spacing: 0.38em; text-transform: uppercase;
+  color: rgba(244,237,224,0.35);
+}
+
+/* ── STAT BAR — full width at very bottom ── */
+.hero-stat-bar {
+  position: absolute; bottom: 0; left: 0; right: 0; z-index: 3;
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  background: rgba(15,13,9,0.65); backdrop-filter: blur(12px);
+  border-top: 1px solid rgba(244,237,224,0.08);
+  opacity: 0;
+}
+.hero-stat-cell {
+  padding: 22px 0; text-align: center;
+  border-right: 1px solid rgba(244,237,224,0.08);
+  position: relative; overflow: hidden;
+  transition: background .3s;
+}
+.hero-stat-cell:last-child { border-right: none; }
+.hero-stat-cell::after {
+  content: ''; position: absolute; bottom: 0; left: 0;
+  width: 0; height: 2px; background: var(--amber);
+  transition: width .4s cubic-bezier(.4,0,.2,1);
+}
+.hero-stat-cell:hover { background: rgba(200,133,42,0.1); }
+.hero-stat-cell:hover::after { width: 100%; }
+.hsc-num {
+  font-family: 'Cormorant Garamond', serif; font-size: 30px;
+  font-weight: 700; color: var(--amber); line-height: 1;
+}
+.hsc-lbl {
+  font-size: 8px; letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--muted); margin-top: 4px;
+}
+
+/* ── SLIDE CONTROLS (bottom-right, over image) ── */
+.hero-controls {
+  position: absolute; bottom: 88px; right: 56px; z-index: 4;
+  display: flex; gap: 8px;
+}
+.hero-ctrl {
+  width: 50px; height: 50px; border: 1px solid rgba(244,237,224,0.2);
+  display: flex; align-items: center; justify-content: center;
+  cursor: none; font-size: 18px; color: var(--cream);
+  background: rgba(15,13,9,0.45); backdrop-filter: blur(8px);
+  transition: all .22s;
+}
+.hero-ctrl:hover { background: var(--amber); color: var(--ink); border-color: var(--amber); }
+
+/* ── SLIDE DOTS ── */
+.hero-dots {
+  position: absolute; bottom: 96px; left: 50%; transform: translateX(-50%);
+  z-index: 4; display: flex; gap: 10px; align-items: center;
+}
+.hero-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: rgba(244,237,224,0.3); transition: all .35s; cursor: none;
+}
+.hero-dot.active { background: var(--amber); width: 28px; border-radius: 3px; }
+
+/* ── CATEGORY CHIP (top-right of image) ── */
+.hero-slide-chip {
+  position: absolute; top: 36px; right: 56px; z-index: 4;
+  background: rgba(15,13,9,0.55); backdrop-filter: blur(10px);
+  border: 1px solid var(--border);
+  padding: 10px 22px; font-size: 9px; letter-spacing: 0.28em;
+  text-transform: uppercase; color: var(--amber);
+  opacity: 0; transition: opacity .4s;
+}
+.hero-slide-chip.visible { opacity: 1; }
+
+/* ── ROTATING STAMP BADGE ── */
+.hero-stamp {
+  position: absolute; bottom: 180px; right: 64px; z-index: 4;
+  width: 120px; height: 120px;
+  border: 1px solid rgba(200,133,42,0.45); border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(15,13,9,0.7); backdrop-filter: blur(10px);
+  animation: stampSpin 18s linear infinite;
+  opacity: 0;
+}
+@keyframes stampSpin { to { transform: rotate(360deg); } }
+.hero-stamp-inner {
+  display: flex; flex-direction: column; align-items: center;
+  animation: stampSpin 18s linear infinite reverse;
+}
+.hero-stamp-year {
+  font-family: 'Bebas Neue', sans-serif; font-size: 32px;
+  color: var(--amber); line-height: 1;
+}
+.hero-stamp-label {
+  font-size: 7px; letter-spacing: 0.3em; text-transform: uppercase;
+  color: rgba(244,237,224,0.55); margin-top: 2px;
+}
+
+/* ── MARQUEE ── */
+.marquee-bar {
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 13px 0; overflow: hidden;
+  position: relative; z-index: 3;
+  background: rgba(200,133,42,0.06);
+}
+.marquee-track { display: inline-flex; animation: marq 24s linear infinite; white-space: nowrap; }
+.marquee-item { font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 0.12em; color: var(--cream); opacity: 0.5; padding: 0 28px; }
+.marquee-sep { color: var(--amber); opacity: 1 !important; }
+@keyframes marq { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+
+/* ══════════════════════════════
+   ABOUT
+══════════════════════════════ */
+#about {
+  padding: 120px 48px;
+  background: var(--cream); color: var(--ink);
+  position: relative; overflow: hidden;
+}
+#about::before {
+  content: 'THITWC';
+  position: absolute; bottom: -60px; right: -20px;
+  font-family: 'Bebas Neue', sans-serif; font-size: 220px;
+  color: rgba(15,13,9,0.04); line-height: 1; pointer-events: none;
+  white-space: nowrap;
+}
+.about-grid {
+  display: grid; grid-template-columns: 1.1fr 1fr;
+  gap: 80px; align-items: center;
+}
+.about-label { font-size: 10px; letter-spacing: 0.35em; text-transform: uppercase; color: var(--sage); margin-bottom: 28px; display: flex; align-items: center; gap: 14px; }
+.about-label::before { content: ''; width: 36px; height: 1px; background: var(--sage); display: inline-block; }
+.about-h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(40px, 5.5vw, 76px); font-weight: 700;
+  line-height: 1.0; color: var(--ink);
+}
+.about-h2 em { color: var(--rust); font-style: italic; }
+.about-p {
+  font-family: 'Cormorant Garamond', serif; font-size: 18px;
+  line-height: 1.85; color: #4a3826; margin-top: 24px;
+}
+.about-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 28px; }
+.tag { border: 1px solid rgba(61,43,23,0.25); padding: 6px 16px; font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase; color: #4a3826; }
+.about-stats-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 1px; margin-top: 40px; background: rgba(15,13,9,0.12); border: 1px solid rgba(15,13,9,0.12); }
+.stat { background: var(--cream); padding: 24px 16px; text-align: center; }
+.stat-n { font-family: 'Cormorant Garamond', serif; font-size: 44px; font-weight: 700; color: var(--rust); line-height: 1; }
+.stat-l { font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: #7a6050; margin-top: 4px; }
+
+.about-right { position: relative; }
+.about-img-frame {
+  position: relative; overflow: hidden;
+  aspect-ratio: 3/4; width: 100%;
+}
+.about-img-frame img {
+  width: 100%; height: 100%; object-fit: cover;
+  filter: sepia(10%); transition: transform 6s ease;
+}
+.about-img-frame:hover img { transform: scale(1.04); }
+.about-img-badge {
+  position: absolute; bottom: 24px; left: -24px;
+  background: var(--rust); color: white;
+  padding: 20px 24px;
+  font-family: 'Cormorant Garamond', serif; font-style: italic;
+  font-size: 18px; line-height: 1.4; max-width: 220px;
+}
+.about-img-badge span { font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; font-style: normal; font-family: 'DM Mono', monospace; display: block; margin-bottom: 6px; opacity: 0.8; }
+
+/* ══════════════════════════════
+   MENU — card grid style like the recording
+══════════════════════════════ */
+#menu { padding: 120px 48px; background: var(--ink); }
+
+.menu-top {
+  display: flex; justify-content: space-between; align-items: flex-end;
+  margin-bottom: 56px;
+}
+.menu-h { font-family: 'Bebas Neue', sans-serif; font-size: clamp(56px, 9vw, 120px); color: var(--cream); line-height: 0.9; }
+.menu-h em { font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 300; color: var(--amber); font-size: 0.75em; }
+
+.menu-cats { display: flex; gap: 0; flex-wrap: wrap; }
+.cat-btn {
+  background: none; border: 1px solid var(--border);
+  border-right: none; padding: 10px 22px;
+  font-family: 'DM Mono', monospace; font-size: 9px;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--muted); cursor: none; transition: all .2s;
+}
+.cat-btn:last-child { border-right: 1px solid var(--border); }
+.cat-btn.active { background: var(--amber); border-color: var(--amber); color: var(--ink); }
+.cat-btn:hover:not(.active) { color: var(--cream); }
+
+/* Card grid — 3 up, tall cards with image */
+.menu-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+}
+
+.menu-card {
+  background: #181410; position: relative; overflow: hidden;
+  display: flex; flex-direction: column;
+  transition: background .3s;
+  opacity: 0; transform: translateY(24px);
+}
+.menu-card:hover { background: #1e1a14; }
+.menu-card:hover .mc-img img { transform: scale(1.06); }
+
+.mc-img {
+  aspect-ratio: 4/3; overflow: hidden; position: relative;
+  background: #0d0b08;
+}
+.mc-img img { width: 100%; height: 100%; object-fit: cover; transition: transform .7s cubic-bezier(.4,0,.2,1); filter: sepia(12%) brightness(0.92); }
+.mc-img-placeholder {
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 48px; opacity: 0.15;
+}
+
+.mc-body { padding: 24px; flex: 1; display: flex; flex-direction: column; }
+.mc-name {
+  font-family: 'Cormorant Garamond', serif; font-size: 20px;
+  font-weight: 700; color: var(--cream); line-height: 1.2;
+  margin-bottom: 10px;
+}
+.mc-desc { font-size: 10px; line-height: 1.7; color: var(--muted); flex: 1; }
+.mc-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border); }
+.mc-badge { font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--amber); }
+.mc-arrow { width: 28px; height: 28px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 12px; transition: all .2s; }
+.menu-card:hover .mc-arrow { border-color: var(--amber); color: var(--amber); }
+
+.menu-cta { margin-top: 48px; text-align: center; }
+
+/* ══════════════════════════════
+   TESTIMONIALS
+══════════════════════════════ */
+#testimonials {
+  padding: 0; overflow: hidden;
+  background: #0d0b08;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.testi-header { padding: 80px 48px 48px; display: flex; justify-content: space-between; align-items: flex-end; }
+.testi-h { font-family: 'Bebas Neue', sans-serif; font-size: clamp(48px, 7vw, 96px); color: var(--cream); line-height: 0.9; }
+.testi-subh { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 18px; color: var(--muted); max-width: 280px; text-align: right; line-height: 1.6; }
+
+.testi-scroll { padding: 0 0 80px; }
+.testi-track { display: flex; gap: 2px; width: max-content; animation: scrollT 32s linear infinite; }
+.testi-track:hover { animation-play-state: paused; }
+@keyframes scrollT { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+
+.testi-card {
+  width: 380px; background: #131009; padding: 40px;
+  border: 1px solid var(--border); flex-shrink: 0;
+  position: relative; transition: background .3s;
+}
+.testi-card:hover { background: #1a150e; }
+.testi-stars { color: var(--amber); font-size: 11px; letter-spacing: 4px; margin-bottom: 20px; }
+.testi-q { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 17px; line-height: 1.75; color: var(--cream); }
+.testi-who { margin-top: 24px; font-size: 9px; letter-spacing: 0.28em; text-transform: uppercase; color: var(--amber); }
+
+/* ══════════════════════════════
+   SERVICES / WHY US
+══════════════════════════════ */
+#services {
+  padding: 120px 48px;
+  background: var(--warm); color: var(--ink);
+}
+.services-h { font-family: 'Bebas Neue', sans-serif; font-size: clamp(56px, 8vw, 108px); color: var(--ink); line-height: 0.9; margin-bottom: 64px; }
+.services-h em { font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 300; color: var(--rust); }
+.services-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 2px; background: rgba(15,13,9,0.15); border: 1px solid rgba(15,13,9,0.15); }
+.svc { background: var(--warm); padding: 48px 36px; position: relative; overflow: hidden; transition: background .3s; }
+.svc::after { content: ''; position: absolute; bottom: 0; left: 0; width: 0; height: 2px; background: var(--rust); transition: width .5s cubic-bezier(.4,0,.2,1); }
+.svc:hover { background: var(--amber); }
+.svc:hover::after { width: 100%; }
+.svc:hover .svc-num { color: rgba(15,13,9,0.2); }
+.svc:hover .svc-icon { background: var(--ink); color: var(--amber); }
+.svc-num { font-family: 'Bebas Neue', sans-serif; font-size: 80px; color: rgba(15,13,9,0.06); line-height: 1; transition: color .3s; }
+.svc-icon { width: 48px; height: 48px; background: var(--ink); color: var(--amber); display: flex; align-items: center; justify-content: center; font-size: 20px; margin: 16px 0; transition: all .3s; }
+.svc-name { font-family: 'Cormorant Garamond', serif; font-size: 26px; font-weight: 700; color: var(--ink); margin-bottom: 12px; }
+.svc-desc { font-size: 11px; line-height: 1.8; color: #5a4030; }
+
+/* ══════════════════════════════
+   FEATURED DISH — cinematic full-bleed
+══════════════════════════════ */
+#feature {
+  position: relative; min-height: 70vh;
+  display: flex; align-items: center;
+  overflow: hidden; background: var(--ink);
+}
+.feature-bg {
+  position: absolute; inset: 0;
+  background:
+    linear-gradient(to right, rgba(15,13,9,0.97) 40%, rgba(15,13,9,0.3) 100%),
+    url('https://theholeinthewallcafe.org/img/service.png') center/cover no-repeat;
+  background-blend-mode: normal;
+}
+.feature-content { position: relative; z-index: 2; padding: 80px 48px; max-width: 580px; }
+.feature-eyebrow { font-size: 9px; letter-spacing: 0.4em; text-transform: uppercase; color: var(--amber); margin-bottom: 24px; display: flex; align-items: center; gap: 12px; }
+.feature-eyebrow::before { content: ''; width: 32px; height: 1px; background: var(--amber); display: inline-block; }
+.feature-h { font-family: 'Cormorant Garamond', serif; font-size: clamp(40px, 5vw, 72px); font-weight: 700; line-height: 1.05; color: var(--cream); }
+.feature-h em { color: var(--amber); font-style: italic; }
+.feature-p { font-family: 'Cormorant Garamond', serif; font-size: 18px; color: var(--muted); line-height: 1.75; margin-top: 20px; }
+.feature-btns { margin-top: 36px; display: flex; gap: 16px; }
+
+/* ══════════════════════════════
+   GALLERY
+══════════════════════════════ */
+#gallery { padding: 120px 48px; background: var(--ink); }
+.gallery-header { margin-bottom: 48px; display: flex; justify-content: space-between; align-items: flex-end; }
+.gallery-h { font-family: 'Bebas Neue', sans-serif; font-size: clamp(56px, 8vw, 108px); color: var(--cream); line-height: 0.9; }
+.gallery-sub { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 16px; color: var(--muted); max-width: 240px; text-align: right; }
+.gallery-masonry { columns: 4; column-gap: 3px; }
+.gal-item { break-inside: avoid; margin-bottom: 3px; position: relative; overflow: hidden; opacity: 0; transform: translateY(20px); }
+.gal-item img { width: 100%; display: block; filter: sepia(15%) brightness(0.88); transition: filter .4s, transform .6s cubic-bezier(.4,0,.2,1); }
+.gal-item:hover img { filter: sepia(0%) brightness(1); transform: scale(1.04); }
+.gal-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(15,13,9,0.7) 0%, transparent 50%); opacity: 0; transition: opacity .3s; display: flex; align-items: flex-end; padding: 16px; }
+.gal-item:hover .gal-overlay { opacity: 1; }
+.gal-label { font-size: 9px; letter-spacing: 0.25em; text-transform: uppercase; color: var(--amber); }
+
+/* ══════════════════════════════
+   CONTACT  — upgraded
+══════════════════════════════ */
+#contact {
+  padding: 0;
+  background: var(--ink);
+  color: var(--cream);
+  position: relative; overflow: hidden;
+}
+
+/* top warm band with the headline */
+.contact-hero {
+  background: var(--warm); color: var(--ink);
+  padding: 100px 48px 80px;
+  position: relative; overflow: hidden;
+}
+.contact-hero::before {
+  content: 'VISIT';
+  position: absolute; right: -20px; bottom: -40px;
+  font-family: 'Bebas Neue', sans-serif; font-size: 260px;
+  color: rgba(15,13,9,0.04); line-height: 1; pointer-events: none;
+}
+.contact-h {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(52px, 7vw, 100px); font-weight: 700;
+  line-height: 0.95; color: var(--ink);
+}
+.contact-h em { color: var(--rust); font-style: italic; }
+
+/* info rows inside the warm band */
+.contact-info-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 1px; margin-top: 64px;
+  background: rgba(15,13,9,0.12); border: 1px solid rgba(15,13,9,0.12);
+}
+.info-cell {
+  background: var(--warm); padding: 32px 28px;
+  transition: background .3s;
+  position: relative;
+}
+.info-cell:hover { background: #e8d7b8; }
+.info-cell::after {
+  content: ''; position: absolute; bottom: 0; left: 0;
+  width: 0; height: 2px; background: var(--rust);
+  transition: width .4s cubic-bezier(.4,0,.2,1);
+}
+.info-cell:hover::after { width: 100%; }
+.ic-icon {
+  width: 44px; height: 44px; background: var(--ink);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; margin-bottom: 20px;
+  transition: background .3s;
+}
+.info-cell:hover .ic-icon { background: var(--rust); }
+.ic-lbl { font-size: 9px; letter-spacing: 0.32em; text-transform: uppercase; color: var(--sage); margin-bottom: 8px; }
+.ic-val { font-family: 'Cormorant Garamond', serif; font-size: 16px; color: var(--ink); line-height: 1.6; }
+.ic-val a { color: var(--ink); text-decoration: none; transition: color .2s; }
+.ic-val a:hover { color: var(--rust); }
+
+/* dark bottom band: hours + socials + map */
+.contact-dark {
+  display: grid; grid-template-columns: 1fr 1fr;
+  background: var(--ink);
+}
+.hours-panel {
+  padding: 64px 48px;
+  border-right: 1px solid var(--border);
+}
+.hours-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 48px; }
+.hours-h2 {
+  font-family: 'Bebas Neue', sans-serif; font-size: 48px;
+  color: var(--amber); line-height: 0.9; letter-spacing: 0.04em;
+}
+.hours-badge {
+  background: rgba(200,133,42,0.12); border: 1px solid var(--border);
+  padding: 8px 16px; font-size: 9px; letter-spacing: 0.22em;
+  text-transform: uppercase; color: var(--amber);
+}
+.hours-table { width: 100%; }
+.hours-tr {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 18px 0; border-bottom: 1px solid rgba(244,237,224,0.06);
+}
+.hours-tr:last-child { border: none; }
+.hours-day { font-size: 11px; letter-spacing: 0.14em; color: rgba(244,237,224,0.45); }
+.hours-time { font-family: 'Cormorant Garamond', serif; font-size: 18px; color: var(--cream); }
+.hours-closed-pill {
+  background: rgba(184,66,40,0.15); border: 1px solid rgba(184,66,40,0.3);
+  color: var(--rust); padding: 4px 14px; font-size: 10px;
+  letter-spacing: 0.18em; text-transform: uppercase;
+}
+
+/* SOCIAL CARDS — the highlight */
+.social-panel { padding: 64px 48px; display: flex; flex-direction: column; }
+.social-h {
+  font-family: 'Bebas Neue', sans-serif; font-size: 48px;
+  color: var(--cream); line-height: 0.9; margin-bottom: 8px;
+}
+.social-sub { font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); margin-bottom: 40px; }
+.social-cards { display: flex; flex-direction: column; gap: 3px; }
+.social-card {
+  display: flex; align-items: center; gap: 0;
+  background: #181410; text-decoration: none;
+  border: 1px solid rgba(244,237,224,0.06);
+  transition: border-color .3s, background .3s;
+  overflow: hidden; position: relative;
+  group: true;
+}
+.social-card:hover { border-color: var(--amber); }
+
+.sc-color-bar {
+  width: 4px; height: 100%; align-self: stretch;
+  flex-shrink: 0; transition: width .3s;
+}
+.social-card:hover .sc-color-bar { width: 6px; }
+.sc-ig  { background: linear-gradient(to bottom, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); }
+.sc-fb  { background: #1877F2; }
+.sc-tw  { background: #1DA1F2; }
+.sc-zm  { background: #E23744; }
+.sc-sw  { background: #FC8019; }
+
+.sc-icon-wrap {
+  width: 60px; height: 60px; display: flex;
+  align-items: center; justify-content: center;
+  font-size: 22px; flex-shrink: 0;
+}
+.sc-body { flex: 1; padding: 16px 0; }
+.sc-platform { font-size: 9px; letter-spacing: 0.25em; text-transform: uppercase; color: var(--muted); margin-bottom: 3px; }
+.sc-handle { font-family: 'Cormorant Garamond', serif; font-size: 17px; color: var(--cream); }
+.sc-arrow {
+  width: 48px; height: 60px; display: flex;
+  align-items: center; justify-content: center;
+  font-size: 16px; color: var(--muted);
+  transition: color .3s, transform .3s;
+}
+.social-card:hover .sc-arrow { color: var(--amber); transform: translateX(4px); }
+
+/* map strip */
+.map-strip {
+  display: flex; border-top: 1px solid var(--border);
+  grid-column: 1 / -1;
+}
+.map-strip-left {
+  flex: 1; padding: 28px 48px;
+  display: flex; align-items: center; gap: 20px;
+  border-right: 1px solid var(--border);
+}
+.map-dot { width: 8px; height: 8px; background: var(--amber); border-radius: 50%; flex-shrink: 0; animation: mapPulse 2s ease-in-out infinite; }
+@keyframes mapPulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(1.4)} }
+.map-addr { font-size: 11px; letter-spacing: 0.1em; color: var(--muted); }
+.map-strip-right {
+  background: var(--amber); padding: 28px 48px;
+  display: flex; align-items: center; gap: 12px;
+  text-decoration: none; color: var(--ink);
+  font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase;
+  font-family: 'DM Mono', monospace; font-weight: 500;
+  transition: background .2s;
+  white-space: nowrap;
+}
+.map-strip-right:hover { background: var(--gold); }
+.map-strip-right svg { width: 16px; height: 16px; }
+
+/* ══════════════════════════════
+   NEWSLETTER STRIP
+══════════════════════════════ */
+.newsletter-strip {
+  background: var(--rust); padding: 64px 48px;
+  display: flex; align-items: center; justify-content: space-between; gap: 48px;
+}
+.nl-left {}
+.nl-h { font-family: 'Bebas Neue', sans-serif; font-size: clamp(32px, 4vw, 52px); color: var(--cream); line-height: 0.9; }
+.nl-sub { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 16px; color: rgba(244,237,224,0.7); margin-top: 8px; }
+.nl-form { display: flex; gap: 0; flex-shrink: 0; }
+.nl-input {
+  background: rgba(244,237,224,0.1); border: 1px solid rgba(244,237,224,0.25);
+  border-right: none; padding: 14px 24px;
+  font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.1em;
+  color: var(--cream); outline: none; width: 280px;
+}
+.nl-input::placeholder { color: rgba(244,237,224,0.4); }
+.nl-input:focus { border-color: rgba(244,237,224,0.6); background: rgba(244,237,224,0.15); }
+.nl-btn {
+  background: var(--ink); color: var(--amber); border: none;
+  padding: 14px 28px; font-family: 'DM Mono', monospace;
+  font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase;
+  cursor: none; transition: background .2s;
+}
+.nl-btn:hover { background: var(--amber); color: var(--ink); }
+
+/* ══════════════════════════════
+   FOOTER  — full editorial
+══════════════════════════════ */
+footer {
+  background: var(--ink);
+  border-top: 1px solid var(--border);
+}
+
+/* Giant wordmark top */
+.footer-wordmark {
+  padding: 72px 48px 0;
+  border-bottom: 1px solid var(--border);
+  overflow: hidden;
+}
+.footer-wordmark-text {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(80px, 14vw, 200px);
+  line-height: 0.85; color: var(--cream);
+  letter-spacing: 0.01em;
+  opacity: 0.08;
+  white-space: nowrap;
+}
+.footer-wordmark-text em { color: var(--amber); font-style: normal; }
+
+/* Main footer grid */
+.footer-main {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 0;
+  border-bottom: 1px solid var(--border);
+}
+.footer-col {
+  padding: 48px;
+  border-right: 1px solid var(--border);
+}
+.footer-col:last-child { border-right: none; }
+
+.footer-brand-logo {
+  font-family: 'Cormorant Garamond', serif; font-size: 28px;
+  font-weight: 700; color: var(--cream); margin-bottom: 16px;
+  line-height: 1.1;
+}
+.footer-brand-logo em { color: var(--amber); font-style: italic; }
+.footer-brand-desc {
+  font-family: 'Cormorant Garamond', serif; font-style: italic;
+  font-size: 15px; line-height: 1.75; color: var(--muted); margin-bottom: 28px;
+  max-width: 280px;
+}
+.footer-delivery-btns { display: flex; gap: 10px; flex-wrap: wrap; }
+.fdb {
+  border: 1px solid var(--border); padding: 9px 18px;
+  font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--muted); text-decoration: none; transition: all .2s;
+  display: flex; align-items: center; gap: 8px;
+}
+.fdb:hover { border-color: var(--amber); color: var(--amber); }
+.fdb-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.fdb-dot-z { background: #E23744; }
+.fdb-dot-s { background: #FC8019; }
+
+.footer-col-h {
+  font-family: 'Bebas Neue', sans-serif; font-size: 22px;
+  color: var(--amber); letter-spacing: 0.08em; margin-bottom: 24px;
+}
+.footer-nav-links { list-style: none; display: flex; flex-direction: column; gap: 14px; }
+.footer-nav-links a {
+  font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase;
+  color: var(--muted); text-decoration: none; transition: color .2s;
+  display: flex; align-items: center; gap: 8px;
+}
+.footer-nav-links a::before { content: '—'; opacity: 0; transition: opacity .2s, transform .2s; transform: translateX(-6px); }
+.footer-nav-links a:hover { color: var(--cream); }
+.footer-nav-links a:hover::before { opacity: 0.4; transform: translateX(0); }
+
+.footer-outlets { display: flex; flex-direction: column; gap: 16px; }
+.outlet-item { display: flex; flex-direction: column; gap: 3px; padding-bottom: 16px; border-bottom: 1px solid rgba(244,237,224,0.06); }
+.outlet-item:last-child { border: none; padding: 0; }
+.outlet-name { font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--cream); }
+.outlet-area { font-size: 10px; color: var(--muted); }
+
+/* Footer bottom bar */
+.footer-bottom {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 24px 48px;
+}
+.footer-copy { font-size: 10px; letter-spacing: 0.12em; color: rgba(244,237,224,0.18); }
+.footer-social-row { display: flex; gap: 8px; }
+.fsoc {
+  width: 36px; height: 36px; border: 1px solid rgba(244,237,224,0.1);
+  display: flex; align-items: center; justify-content: center;
+  color: rgba(244,237,224,0.3); text-decoration: none;
+  font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.08em;
+  transition: all .25s; position: relative; overflow: hidden;
+}
+.fsoc::before {
+  content: ''; position: absolute; inset: 0;
+  background: var(--amber); transform: translateY(100%);
+  transition: transform .25s cubic-bezier(.4,0,.2,1);
+}
+.fsoc:hover { color: var(--ink); border-color: var(--amber); }
+.fsoc:hover::before { transform: translateY(0); }
+.fsoc span { position: relative; z-index: 1; }
+
+/* ══════════════════════════════
+   REVEAL CLASSES
+══════════════════════════════ */
+.rv { opacity: 0; transform: translateY(48px); }
+.rv-l { opacity: 0; transform: translateX(-48px); }
+.rv-r { opacity: 0; transform: translateX(48px); }
+
+/* ══════════════════════════════
+   MOBILE
+══════════════════════════════ */
+@media (max-width: 900px) {
+  nav { padding: 20px 24px; }
+  nav.scrolled { padding: 14px 24px; }
+  .nav-links { display: none; }
+  /* hero mobile */
+  .hero-left-panel { width: 100%; }
+  .hero-left-top { padding: 120px 24px 0; }
+  .hero-scroll-wrap { padding: 0 24px 32px; }
+  .hero-stat-bar { grid-template-columns: repeat(2,1fr); }
+  .hero-controls { bottom: 160px; right: 24px; }
+  .hero-stamp { display: none; }
+  .hero-slide-chip { right: 24px; top: 24px; }
+  #about, #menu, #gallery, #services { padding: 80px 24px; }
+  .about-grid { grid-template-columns: 1fr; gap: 48px; }
+  .about-img-badge { left: 0; }
+  .services-grid { grid-template-columns: 1fr; }
+  .menu-grid { grid-template-columns: repeat(2, 1fr); }
+  .gallery-masonry { columns: 2; }
+  .menu-top { flex-direction: column; align-items: flex-start; gap: 28px; }
+  .testi-header { flex-direction: column; gap: 20px; }
+  .testi-subh { text-align: left; }
+  .contact-hero { padding: 64px 24px 56px; }
+  .contact-info-grid { grid-template-columns: 1fr 1fr; }
+  .contact-dark { grid-template-columns: 1fr; }
+  .hours-panel { border-right: none; border-bottom: 1px solid var(--border); padding: 48px 24px; }
+  .social-panel { padding: 48px 24px; }
+  .map-strip { flex-direction: column; }
+  .map-strip-left { border-right: none; border-bottom: 1px solid var(--border); padding: 20px 24px; }
+  .map-strip-right { padding: 20px 24px; }
+  .newsletter-strip { flex-direction: column; padding: 48px 24px; }
+  .nl-form { flex-direction: column; }
+  .nl-input { width: 100%; border-right: 1px solid rgba(244,237,224,0.25); border-bottom: none; }
+  .footer-wordmark { padding: 40px 24px 0; }
+  .footer-main { grid-template-columns: 1fr 1fr; }
+  .footer-col { padding: 32px 24px; }
+  .footer-col:nth-child(2) { border-right: none; }
+  .footer-col:nth-child(4) { border-right: none; }
+  .footer-bottom { padding: 20px 24px; flex-direction: column; gap: 16px; align-items: flex-start; }
+}
+
+@media (max-width: 600px) {
+  .menu-grid { grid-template-columns: 1fr; }
+  .gallery-masonry { columns: 2; }
+  .hero-row-top, .hero-row-bottom { gap: 12px; }
+}
+</style>
+</head>
+<body>
+
+<!-- CURSOR -->
+<div class="cur" id="C"></div>
+<div class="cur2" id="C2"></div>
+
+<!-- LOADER -->
+<div id="loader">
+  <div class="ld-ring">
+    <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="50" cy="50" r="44" stroke="rgba(200,133,42,0.2)" stroke-width="1"/>
+      <circle cx="50" cy="50" r="44" stroke="#c8852a" stroke-width="1" stroke-dasharray="276" stroke-dashoffset="200" stroke-linecap="round"/>
+      <circle cx="50" cy="6" r="3" fill="#c8852a"/>
+    </svg>
+    <div class="ld-ring-center">CAFE</div>
+  </div>
+  <div class="ld-word"><span id="ldw">The Hole</span></div>
+  <div class="ld-bar-wrap"><div class="ld-bar" id="ldbar"></div></div>
+  <div class="ld-sub" id="ldsub">Since 2009 · Bangalore</div>
+</div>
+
+<!-- NAV -->
+<nav id="nav">
+  <a href="#" class="nav-logo">The <em>Hole</em> in the Wall</a>
+  <ul class="nav-links">
+    <li><a href="#about">Story</a></li>
+    <li><a href="#menu">Menu</a></li>
+    <li><a href="#gallery">Gallery</a></li>
+    <li><a href="#contact">Visit</a></li>
+    <li><a href="https://theholeinthewallcafe.org/onlineorder/" class="nav-order" target="_blank">Order Now</a></li>
+  </ul>
+</nav>
+
+<!-- ═══ HERO ═══ -->
+<section id="hero">
+
+  <!-- Full-screen slides (behind everything) -->
+  <div class="hero-slides">
+    <div class="hero-slide active" data-label="Breakfast & Brunch">
+      <img class="hero-slide-img"
+        src="https://images.unsplash.com/photo-1533089860892-a7c6f0a88666?w=1600&q=85"
+        onerror="this.src='https://theholeinthewallcafe.org/img/service1.jpg'" alt="Breakfast"/>
+    </div>
+    <div class="hero-slide" data-label="Burgers & Sandwiches">
+      <img class="hero-slide-img"
+        src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=1600&q=85"
+        onerror="this.src='https://theholeinthewallcafe.org/img/service2.jpg'" alt="Burgers"/>
+    </div>
+    <div class="hero-slide" data-label="Waffles & Pancakes">
+      <img class="hero-slide-img"
+        src="https://images.unsplash.com/photo-1562376552-0d160a2f238d?w=1600&q=85"
+        onerror="this.src='https://theholeinthewallcafe.org/img/service3.jpg'" alt="Waffles"/>
+    </div>
+  </div>
+
+  <!-- Cinematic gradient overlay -->
+  <div class="hero-img-overlay"></div>
+
+  <!-- Category chip top-right -->
+  <div class="hero-slide-chip visible" id="heroChip">Breakfast &amp; Brunch</div>
+
+  <!-- Rotating stamp badge bottom-right -->
+  <div class="hero-stamp" id="heroStamp">
+    <div class="hero-stamp-inner">
+      <div class="hero-stamp-year">2009</div>
+      <div class="hero-stamp-label">Est. · BLR</div>
+    </div>
+  </div>
+
+  <!-- Slide controls bottom-right -->
+  <div class="hero-controls">
+    <button class="hero-ctrl" id="heroPrev">←</button>
+    <button class="hero-ctrl" id="heroNext">→</button>
+  </div>
+
+  <!-- Dots -->
+  <div class="hero-dots" id="heroDots">
+    <div class="hero-dot active" onclick="goToSlide(0)"></div>
+    <div class="hero-dot" onclick="goToSlide(1)"></div>
+    <div class="hero-dot" onclick="goToSlide(2)"></div>
+  </div>
+
+  <!-- ── LEFT PANEL — text over image ── -->
+  <div class="hero-left-panel">
+    <div class="hero-left-top">
+
+      <div class="hero-eyebrow" id="heroEyebrow">
+        <div class="hero-eyebrow-dot"></div>
+        <div class="hero-eyebrow-line"></div>
+        Koramangala, Bangalore
+        <div class="hero-eyebrow-line"></div>
+        Est. 2009
+      </div>
+
+      <h1 class="hero-headline" id="heroHeadline">
+        <span class="hh-line"><span class="hh-word">BEST</span></span>
+        <span class="hh-line"><span class="hh-word"><em>Dine-In</em></span></span>
+        <span class="hh-line"><span class="hh-word">EXPERIENCE</span></span>
+        <span class="hh-line"><span class="hh-word">IN THE CITY</span></span>
+      </h1>
+
+      <p class="hero-tagline" id="heroTagline">
+        Born in a humble Koramangala garage. Honest continental
+        food — breakfasts, burgers, waffles — with a homely,
+        no-frills soul that keeps Bangalore coming back.
+      </p>
+
+      <div class="hero-btn-row" id="heroBtns">
+        <a href="https://theholeinthewallcafe.org/onlineorder/" class="btn-solid" target="_blank">Order Now</a>
+        <a href="#menu" class="btn-ghost">View Menu</a>
+      </div>
+    </div>
+
+    <div class="hero-scroll-wrap" id="heroScrollWrap">
+      <div class="hero-scroll-line"></div>
+      <span class="hero-scroll-label">Scroll to explore</span>
+    </div>
+
+    <!-- Full-width stat bar pinned to bottom -->
+    <div class="hero-stat-bar" id="heroStatBar">
+      <div class="hero-stat-cell">
+        <div class="hsc-num">15+</div>
+        <div class="hsc-lbl">Years</div>
+      </div>
+      <div class="hero-stat-cell">
+        <div class="hsc-num">4</div>
+        <div class="hsc-lbl">Outlets</div>
+      </div>
+      <div class="hero-stat-cell">
+        <div class="hsc-num">150</div>
+        <div class="hsc-lbl">Seats</div>
+      </div>
+      <div class="hero-stat-cell">
+        <div class="hsc-num">80+</div>
+        <div class="hsc-lbl">Dishes</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Marquee sits below the hero, full width -->
+  <div class="marquee-bar" style="position:absolute;bottom:0;left:0;right:0;z-index:5;display:none;">
+  </div>
+
+</section>
+
+<!-- Marquee after hero -->
+<div class="marquee-bar">
+  <div class="marquee-track">
+    <span class="marquee-item">FRESH INGREDIENTS</span><span class="marquee-item marquee-sep">✦</span>
+    <span class="marquee-item">HOMELY AMBIENCE</span><span class="marquee-item marquee-sep">✦</span>
+    <span class="marquee-item">PET FRIENDLY</span><span class="marquee-item marquee-sep">✦</span>
+    <span class="marquee-item">VALUE FOR MONEY</span><span class="marquee-item marquee-sep">✦</span>
+    <span class="marquee-item">DINE-IN &amp; TAKEAWAY</span><span class="marquee-item marquee-sep">✦</span>
+    <span class="marquee-item">KORAMANGALA</span><span class="marquee-item marquee-sep">✦</span>
+    <span class="marquee-item">SINCE 2009</span><span class="marquee-item marquee-sep">✦</span>
+    <span class="marquee-item">CONTINENTAL CUISINE</span><span class="marquee-item marquee-sep">✦</span>
+    <span class="marquee-item">FRESH INGREDIENTS</span><span class="marquee-item marquee-sep">✦</span>
+    <span class="marquee-item">HOMELY AMBIENCE</span><span class="marquee-item marquee-sep">✦</span>
+    <span class="marquee-item">PET FRIENDLY</span><span class="marquee-item marquee-sep">✦</span>
+    <span class="marquee-item">VALUE FOR MONEY</span><span class="marquee-item marquee-sep">✦</span>
+    <span class="marquee-item">DINE-IN &amp; TAKEAWAY</span><span class="marquee-item marquee-sep">✦</span>
+    <span class="marquee-item">KORAMANGALA</span><span class="marquee-item marquee-sep">✦</span>
+    <span class="marquee-item">SINCE 2009</span><span class="marquee-item marquee-sep">✦</span>
+    <span class="marquee-item">CONTINENTAL CUISINE</span><span class="marquee-item marquee-sep">✦</span>
+  </div>
+</div>
+
+<!-- ═══ ABOUT ═══ -->
+<section id="about">
+  <div class="about-grid">
+    <div class="rv-l">
+      <div class="about-label">Our Story</div>
+      <h2 class="about-h2">A garage.<br>A dream.<br><em>A legend.</em></h2>
+      <p class="about-p">Started in 2009 by Bangalore couple Lynn Dcosta & Nathan Harris in a humble no-frills garage, THITWC set out to offer original, affordable, quality continental food to Bangalore foodies. From a tiny 25-seater to a 150-seater institution, with outlets across Koramangala, Domlur, Kammanahalli and Hyderabad.</p>
+      <div class="about-tags">
+        <span class="tag">Pet Friendly</span>
+        <span class="tag">Continental</span>
+        <span class="tag">Koramangala</span>
+        <span class="tag">Domlur</span>
+        <span class="tag">Kammanahalli</span>
+        <span class="tag">Hyderabad</span>
+        <span class="tag">Chutney Marise</span>
+      </div>
+      <div class="about-stats-row">
+        <div class="stat"><div class="stat-n" data-target="15">0</div><div class="stat-l">Years</div></div>
+        <div class="stat"><div class="stat-n" data-target="150">0</div><div class="stat-l">Seats</div></div>
+        <div class="stat"><div class="stat-n" data-target="4">0</div><div class="stat-l">Outlets</div></div>
+        <div class="stat"><div class="stat-n" data-target="80">0</div><div class="stat-l">Items</div></div>
+      </div>
+    </div>
+    <div class="about-right rv-r">
+      <div class="about-img-frame">
+        <img src="https://theholeinthewallcafe.org/img/about1.jpg" alt="Cafe interior"
+             onerror="this.src='https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=600&q=80'"/>
+      </div>
+      <div class="about-img-badge">
+        <span>Founders</span>
+        "Every dish is a testament of passion and love."
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ MENU ═══ -->
+<section id="menu">
+  <div class="menu-top">
+    <h2 class="menu-h rv">THE<br><em>Menu</em></h2>
+    <div class="menu-cats rv">
+      <button class="cat-btn active" onclick="showCat('breakfast',this)">Breakfast</button>
+      <button class="cat-btn" onclick="showCat('burgers',this)">Burgers</button>
+      <button class="cat-btn" onclick="showCat('beverages',this)">Beverages</button>
+      <button class="cat-btn" onclick="showCat('waffles',this)">Waffles</button>
+    </div>
+  </div>
+
+  <!-- BREAKFAST -->
+  <div id="cat-breakfast" class="menu-grid">
+    <div class="menu-card">
+      <div class="mc-img"><img src="https://images.unsplash.com/photo-1533089860892-a7c6f0a88666?w=500&q=80" alt="Farmers Breakfast"/></div>
+      <div class="mc-body">
+        <div class="mc-name">The Farmer's Breakfast</div>
+        <div class="mc-desc">Fried Eggs, Baked Beans, Mashed Potato, Sautéed Mushrooms, Spinach & a Grilled Tomato. Served with brown bread & butter.</div>
+        <div class="mc-footer"><span class="mc-badge">Breakfast</span><div class="mc-arrow">↗</div></div>
+      </div>
+    </div>
+    <div class="menu-card">
+      <div class="mc-img"><img src="https://images.unsplash.com/photo-1482049016688-2d3e1b311543?w=500&q=80" alt="Big Franchie"/></div>
+      <div class="mc-body">
+        <div class="mc-name">The Big Franchie Breakfast</div>
+        <div class="mc-desc">French toast topped with honey butter sauce, served with 2 fried eggs and 2 chicken sausages. Bonjour!</div>
+        <div class="mc-footer"><span class="mc-badge">Breakfast</span><div class="mc-arrow">↗</div></div>
+      </div>
+    </div>
+    <div class="menu-card">
+      <div class="mc-img"><img src="https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=500&q=80" alt="Fajita Tacos"/></div>
+      <div class="mc-body">
+        <div class="mc-name">Chicken Fajita Breakfast Tacos</div>
+        <div class="mc-desc">Tortilla with onion, green peppers & chicken in homemade fajita seasoning, topped with fried egg and spicy mayo.</div>
+        <div class="mc-footer"><span class="mc-badge">Breakfast</span><div class="mc-arrow">↗</div></div>
+      </div>
+    </div>
+    <div class="menu-card">
+      <div class="mc-img"><img src="https://images.unsplash.com/photo-1525351484163-7529414344d8?w=500&q=80" alt="Pasta Omelette"/></div>
+      <div class="mc-body">
+        <div class="mc-name">The Pasta Omelette</div>
+        <div class="mc-desc">House special omelette with basil, pasta, mushrooms and black olives. A real crowd favourite.</div>
+        <div class="mc-footer"><span class="mc-badge">Breakfast</span><div class="mc-arrow">↗</div></div>
+      </div>
+    </div>
+    <div class="menu-card">
+      <div class="mc-img"><img src="https://images.unsplash.com/photo-1607532941433-304659e8198a?w=500&q=80" alt="Roast Beef Omelette"/></div>
+      <div class="mc-body">
+        <div class="mc-name">The Roast Beef Omelette</div>
+        <div class="mc-desc">Omelette stuffed with sliced roast beef, onion, capsicum and cheese. Served with brown bread & butter.</div>
+        <div class="mc-footer"><span class="mc-badge">Breakfast</span><div class="mc-arrow">↗</div></div>
+      </div>
+    </div>
+    <div class="menu-card">
+      <div class="mc-img"><img src="https://images.unsplash.com/photo-1528207776546-365bb710ee93?w=500&q=80" alt="Full Monty"/></div>
+      <div class="mc-body">
+        <div class="mc-name">The Full Monty American</div>
+        <div class="mc-desc">2 scrambled eggs, bacon or chicken sausages, 2 pancakes & 2 slices of brown bread & butter.</div>
+        <div class="mc-footer"><span class="mc-badge">Breakfast</span><div class="mc-arrow">↗</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BURGERS -->
+  <div id="cat-burgers" class="menu-grid" style="display:none">
+    <div class="menu-card">
+      <div class="mc-img"><img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500&q=80" alt="Dirty Burger"/></div>
+      <div class="mc-body">
+        <div class="mc-name">The Dirty Burger</div>
+        <div class="mc-desc">Want to try a combo of 2 meats? Pick any 2 and we'll put them in a burger for you!</div>
+        <div class="mc-footer"><span class="mc-badge">Burger</span><div class="mc-arrow">↗</div></div>
+      </div>
+    </div>
+    <div class="menu-card">
+      <div class="mc-img"><img src="https://images.unsplash.com/photo-1550317138-10000687a72b?w=500&q=80" alt="Holey Breakfast Burger"/></div>
+      <div class="mc-body">
+        <div class="mc-name">The Holey Breakfast Burger</div>
+        <div class="mc-desc">Waffles layered with lettuce, hash brown, chicken sausage, bacon, salami, fried egg, cheese and a patty.</div>
+        <div class="mc-footer"><span class="mc-badge">Burger</span><div class="mc-arrow">↗</div></div>
+      </div>
+    </div>
+    <div class="menu-card">
+      <div class="mc-img"><img src="https://images.unsplash.com/photo-1561758033-d89a9ad46330?w=500&q=80" alt="Pulled Porky"/></div>
+      <div class="mc-body">
+        <div class="mc-name">Pulled Porky Burger</div>
+        <div class="mc-desc">Mouthwatering shredded roast pork in homemade BBQ sauce, topped with coleslaw.</div>
+        <div class="mc-footer"><span class="mc-badge">Burger</span><div class="mc-arrow">↗</div></div>
+      </div>
+    </div>
+    <div class="menu-card">
+      <div class="mc-img"><img src="https://images.unsplash.com/photo-1586190848861-99aa4a171e90?w=500&q=80" alt="Sloppy Joe"/></div>
+      <div class="mc-body">
+        <div class="mc-name">Sloppy Joe</div>
+        <div class="mc-desc">An all time classic burger filled with beef chilli mince and cheese sauce.</div>
+        <div class="mc-footer"><span class="mc-badge">Burger</span><div class="mc-arrow">↗</div></div>
+      </div>
+    </div>
+    <div class="menu-card">
+      <div class="mc-img"><img src="https://images.unsplash.com/photo-1553909489-cd47e0907980?w=500&q=80" alt="BELT"/></div>
+      <div class="mc-body">
+        <div class="mc-name">B.E.L.T</div>
+        <div class="mc-desc">Bacon, Egg, Lettuce and Sliced Tomato in a grilled sandwich. What more could you need?!</div>
+        <div class="mc-footer"><span class="mc-badge">Sandwich</span><div class="mc-arrow">↗</div></div>
+      </div>
+    </div>
+    <div class="menu-card">
+      <div class="mc-img"><img src="https://images.unsplash.com/photo-1620360289962-29e7c5882f2f?w=500&q=80" alt="Honey Mustard"/></div>
+      <div class="mc-body">
+        <div class="mc-name">The Honey Mustard Sandwich</div>
+        <div class="mc-desc">Homemade honey mustard, chicken, tomato and lettuce — grilled to perfection.</div>
+        <div class="mc-footer"><span class="mc-badge">Sandwich</span><div class="mc-arrow">↗</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BEVERAGES -->
+  <div id="cat-beverages" class="menu-grid" style="display:none">
+    <div class="menu-card">
+      <div class="mc-img"><img src="https://images.unsplash.com/photo-1621263764928-df1444c5e859?w=500&q=80" alt="Peach Basil Lemonade"/></div>
+      <div class="mc-body">
+        <div class="mc-name">The Peach & Basil Lemonade</div>
+        <div class="mc-desc">A refreshing house special that's become a signature at the cafe. Bright, zingy, and unlike anything else.</div>
+        <div class="mc-footer"><span class="mc-badge">Beverage</span><div class="mc-arrow">↗</div></div>
+      </div>
+    </div>
+    <div class="menu-card">
+      <div class="mc-img"><img src="https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=500&q=80" alt="Spicy Guava"/></div>
+      <div class="mc-body">
+        <div class="mc-name">Spicy Guava Juice</div>
+        <div class="mc-desc">A bold and fiery twist on a tropical classic. Loved by regulars.</div>
+        <div class="mc-footer"><span class="mc-badge">Beverage</span><div class="mc-arrow">↗</div></div>
+      </div>
+    </div>
+    <div class="menu-card">
+      <div class="mc-img"><img src="https://images.unsplash.com/photo-1572490122747-3968b75cc699?w=500&q=80" alt="Cold Coffee"/></div>
+      <div class="mc-body">
+        <div class="mc-name">Cold Coffee</div>
+        <div class="mc-desc">Classic cold brew prepared in-house. Rich, smooth and the perfect companion to a lazy morning.</div>
+        <div class="mc-footer"><span class="mc-badge">Beverage</span><div class="mc-arrow">↗</div></div>
+      </div>
+    </div>
+    <div class="menu-card">
+      <div class="mc-img"><img src="https://images.unsplash.com/photo-1553361371-9b22f78e8b1d?w=500&q=80" alt="Cola Float"/></div>
+      <div class="mc-body">
+        <div class="mc-name">Cherry Cola Coke Float</div>
+        <div class="mc-desc">Fizzy, creamy, and impossible to put down. Also available in Raspberry.</div>
+        <div class="mc-footer"><span class="mc-badge">Beverage</span><div class="mc-arrow">↗</div></div>
+      </div>
+    </div>
+    <div class="menu-card">
+      <div class="mc-img"><img src="https://images.unsplash.com/photo-1541658016709-82535e94bc69?w=500&q=80" alt="Smoothie"/></div>
+      <div class="mc-body">
+        <div class="mc-name">Smoothie Criminal</div>
+        <div class="mc-desc">Thick, fruity, and dangerously good. A house favourite for good reason.</div>
+        <div class="mc-footer"><span class="mc-badge">Beverage</span><div class="mc-arrow">↗</div></div>
+      </div>
+    </div>
+    <div class="menu-card">
+      <div class="mc-img"><img src="https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=500&q=80" alt="Chocolate Milkshake"/></div>
+      <div class="mc-body">
+        <div class="mc-name">Chocolate Milkshake</div>
+        <div class="mc-desc">Rich, indulgent, and thick enough to make you pause. The Cookie Monster variant is equally dangerous.</div>
+        <div class="mc-footer"><span class="mc-badge">Beverage</span><div class="mc-arrow">↗</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WAFFLES -->
+  <div id="cat-waffles" class="menu-grid" style="display:none">
+    <div class="menu-card">
+      <div class="mc-img"><img src="https://images.unsplash.com/photo-1562376552-0d160a2f238d?w=500&q=80" alt="Apple Pie Waffle"/></div>
+      <div class="mc-body">
+        <div class="mc-name">The Apple Pie Waffle</div>
+        <div class="mc-desc">2 waffles topped with caramelized apple, ice cream & caramel sauce. Autumn in a plate.</div>
+        <div class="mc-footer"><span class="mc-badge">Waffle</span><div class="mc-arrow">↗</div></div>
+      </div>
+    </div>
+    <div class="menu-card">
+      <div class="mc-img"><img src="https://images.unsplash.com/photo-1544547836-1b24e09a1db2?w=500&q=80" alt="Banoffee"/></div>
+      <div class="mc-body">
+        <div class="mc-name">Banoffee Pie Waffle</div>
+        <div class="mc-desc">Waffles topped with fresh banana, caramel & whipped cream. Dangerously addictive.</div>
+        <div class="mc-footer"><span class="mc-badge">Waffle</span><div class="mc-arrow">↗</div></div>
+      </div>
+    </div>
+    <div class="menu-card">
+      <div class="mc-img"><img src="https://images.unsplash.com/photo-1598214886806-c87b84b7078b?w=500&q=80" alt="Blueberry Cheesecake"/></div>
+      <div class="mc-body">
+        <div class="mc-name">Blueberry Cheesecake Waffles</div>
+        <div class="mc-desc">Waffles topped with cream cheese & blueberry sauce. One of the most ordered on Zomato.</div>
+        <div class="mc-footer"><span class="mc-badge">Waffle</span><div class="mc-arrow">↗</div></div>
+      </div>
+    </div>
+    <div class="menu-card">
+      <div class="mc-img"><img src="https://images.unsplash.com/photo-1506084868230-bb9d95c24759?w=500&q=80" alt="Pancakes"/></div>
+      <div class="mc-body">
+        <div class="mc-name">Oat My Goodness Pancakes</div>
+        <div class="mc-desc">Monster oat pancakes with peanut butter, banana, syrup and chocolate chips. OMG!</div>
+        <div class="mc-footer"><span class="mc-badge">Pancake</span><div class="mc-arrow">↗</div></div>
+      </div>
+    </div>
+    <div class="menu-card">
+      <div class="mc-img"><img src="https://images.unsplash.com/photo-1528207776546-365bb710ee93?w=500&q=80" alt="Tiramisu Pancakes"/></div>
+      <div class="mc-body">
+        <div class="mc-name">Tiramisu Those Pancakes</div>
+        <div class="mc-desc">Pancake topped with mocha cream, dusted with coffee powder and grated chocolate.</div>
+        <div class="mc-footer"><span class="mc-badge">Pancake</span><div class="mc-arrow">↗</div></div>
+      </div>
+    </div>
+    <div class="menu-card">
+      <div class="mc-img"><img src="https://images.unsplash.com/photo-1559620192-032c4bc4674e?w=500&q=80" alt="Oreo Pancakes"/></div>
+      <div class="mc-body">
+        <div class="mc-name">Oreo Chocolate Pancakes</div>
+        <div class="mc-desc">Whipped cream between chocolate pancakes, topped with ice cream and crushed Oreo.</div>
+        <div class="mc-footer"><span class="mc-badge">Pancake</span><div class="mc-arrow">↗</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="menu-cta">
+    <a href="https://theholeinthewallcafe.org/onlineorder/" class="btn-solid" target="_blank">View Full Menu & Order ↗</a>
+  </div>
+</section>
+
+<!-- ═══ FEATURED DISH ═══ -->
+<section id="feature">
+  <div class="feature-bg"></div>
+  <div class="feature-content rv-l">
+    <div class="feature-eyebrow">House Favourite</div>
+    <h2 class="feature-h">The <em>Dirty Burger.</em><br>Pick 2 meats.</h2>
+    <p class="feature-p">Our most talked-about burger. Beef, chicken, pork — pick any 2 meats and we build a burger around them. It's messy, it's glorious, it's The Dirty Burger.</p>
+    <div class="feature-btns">
+      <a href="https://theholeinthewallcafe.org/onlineorder/" class="btn-solid" target="_blank">Order Now</a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ TESTIMONIALS ═══ -->
+<section id="testimonials">
+  <div class="testi-header">
+    <h2 class="testi-h rv">GUEST<br>LOVE</h2>
+    <p class="testi-subh rv-r">"The kind of place that makes you a regular after the very first visit."</p>
+  </div>
+  <div class="testi-scroll">
+    <div class="testi-track">
+      <div class="testi-card"><div class="testi-stars">★★★★★</div><p class="testi-q">"The Bikers Meat Platter is a delight. Chicken steak burger was extremely satiating to all taste buds. The Blueberry Cheesecake waffle was extravagant."</p><p class="testi-who">— Adhar Nayak</p></div>
+      <div class="testi-card"><div class="testi-stars">★★★★★</div><p class="testi-q">"My favourite is the 'dirty burger' where the beef patty is amazingly succulent. The cheesy bacon fries always accompanies the amazing burgers."</p><p class="testi-who">— Anusmita Mazumder</p></div>
+      <div class="testi-card"><div class="testi-stars">★★★★★</div><p class="testi-q">"Great place for a quick breakfast hangout. The food has always been good every time I've visited. Must haves: English breakfast and pancakes."</p><p class="testi-who">— Anubha Upadhya M</p></div>
+      <div class="testi-card"><div class="testi-stars">★★★★★</div><p class="testi-q">"Situated in the heart of Koramangala, this cafe has turned out to be our most favourite! Visited at least 5 times now."</p><p class="testi-who">— Regular Guest</p></div>
+      <!-- Duplicate for loop -->
+      <div class="testi-card"><div class="testi-stars">★★★★★</div><p class="testi-q">"The Bikers Meat Platter is a delight. Chicken steak burger was extremely satiating to all taste buds. The Blueberry Cheesecake waffle was extravagant."</p><p class="testi-who">— Adhar Nayak</p></div>
+      <div class="testi-card"><div class="testi-stars">★★★★★</div><p class="testi-q">"My favourite is the 'dirty burger' where the beef patty is amazingly succulent. The cheesy bacon fries always accompanies the amazing burgers."</p><p class="testi-who">— Anusmita Mazumder</p></div>
+      <div class="testi-card"><div class="testi-stars">★★★★★</div><p class="testi-q">"Great place for a quick breakfast hangout. The food has always been good every time I've visited. Must haves: English breakfast and pancakes."</p><p class="testi-who">— Anubha Upadhya M</p></div>
+      <div class="testi-card"><div class="testi-stars">★★★★★</div><p class="testi-q">"Situated in the heart of Koramangala, this cafe has turned out to be our most favourite! Visited at least 5 times now."</p><p class="testi-who">— Regular Guest</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ SERVICES ═══ -->
+<section id="services">
+  <div class="about-label" style="color:var(--sage)">Why THITWC</div>
+  <h2 class="services-h rv">THE<br><em>Experience</em></h2>
+  <div class="services-grid">
+    <div class="svc rv">
+      <div class="svc-num">01</div>
+      <div class="svc-icon">🥬</div>
+      <div class="svc-name">Fresh Ingredients</div>
+      <p class="svc-desc">Every dish made from scratch. No shortcuts, no compromises — just honest food prepared with real care.</p>
+    </div>
+    <div class="svc rv">
+      <div class="svc-num">02</div>
+      <div class="svc-icon">🏡</div>
+      <div class="svc-name">Homely Ambience</div>
+      <p class="svc-desc">A no-frills garage-born vibe that feels like eating at a friend's place. Pet-friendly too.</p>
+    </div>
+    <div class="svc rv">
+      <div class="svc-num">03</div>
+      <div class="svc-icon">💛</div>
+      <div class="svc-name">Value For Money</div>
+      <p class="svc-desc">From day one, the mission: quality continental food accessible to everyone in Bangalore.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ GALLERY ═══ -->
+<section id="gallery">
+  <div class="gallery-header">
+    <h2 class="gallery-h rv">THE<br>VIBE</h2>
+    <p class="gallery-sub rv-r">A glimpse into the cafe that became a Bangalore institution.</p>
+  </div>
+  <div class="gallery-masonry">
+    <div class="gal-item"><img src="https://theholeinthewallcafe.org/img/gallery1.jpg" onerror="this.src='https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=400&q=80'" alt=""/><div class="gal-overlay"><span class="gal-label">The Space</span></div></div>
+    <div class="gal-item"><img src="https://theholeinthewallcafe.org/img/gallery2.jpg" onerror="this.src='https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400&q=80'" alt=""/><div class="gal-overlay"><span class="gal-label">The Food</span></div></div>
+    <div class="gal-item"><img src="https://theholeinthewallcafe.org/img/gallery3.jpg" onerror="this.src='https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400&q=80'" alt=""/><div class="gal-overlay"><span class="gal-label">Breakfast</span></div></div>
+    <div class="gal-item"><img src="https://theholeinthewallcafe.org/img/gallery4.jpg" onerror="this.src='https://images.unsplash.com/photo-1476224203421-9ac39bcb3327?w=400&q=80'" alt=""/><div class="gal-overlay"><span class="gal-label">Burgers</span></div></div>
+    <div class="gal-item"><img src="https://theholeinthewallcafe.org/img/gallery5.jpg" onerror="this.src='https://images.unsplash.com/photo-1551024506-0bccd828d307?w=400&q=80'" alt=""/><div class="gal-overlay"><span class="gal-label">Desserts</span></div></div>
+    <div class="gal-item"><img src="https://theholeinthewallcafe.org/img/gallery6.jpg" onerror="this.src='https://images.unsplash.com/photo-1466978913421-dad2ebd01d17?w=400&q=80'" alt=""/><div class="gal-overlay"><span class="gal-label">Drinks</span></div></div>
+    <div class="gal-item"><img src="https://theholeinthewallcafe.org/img/gallery7.jpg" onerror="this.src='https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&q=80'" alt=""/><div class="gal-overlay"><span class="gal-label">Fresh</span></div></div>
+    <div class="gal-item"><img src="https://theholeinthewallcafe.org/img/gallery8.jpg" onerror="this.src='https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=400&q=80'" alt=""/><div class="gal-overlay"><span class="gal-label">Moments</span></div></div>
+    <div class="gal-item"><img src="https://theholeinthewallcafe.org/img/gallery9.jpg" onerror="this.src='https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=400&q=80'" alt=""/><div class="gal-overlay"><span class="gal-label">Plating</span></div></div>
+    <div class="gal-item"><img src="https://theholeinthewallcafe.org/img/gallery11.jpg" onerror="this.src='https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&q=80'" alt=""/><div class="gal-overlay"><span class="gal-label">Kitchen</span></div></div>
+    <div class="gal-item"><img src="https://theholeinthewallcafe.org/img/gallery12.jpg" onerror="this.src='https://images.unsplash.com/photo-1482049016688-2d3e1b311543?w=400&q=80'" alt=""/><div class="gal-overlay"><span class="gal-label">Classics</span></div></div>
+    <div class="gal-item"><img src="https://theholeinthewallcafe.org/img/gallery13.jpg" onerror="this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&q=80'" alt=""/><div class="gal-overlay"><span class="gal-label">The Vibe</span></div></div>
+  </div>
+</section>
+
+<!-- ═══ CONTACT ═══ -->
+<section id="contact">
+
+  <!-- TOP: warm headline + info grid -->
+  <div class="contact-hero rv-l">
+    <h2 class="contact-h">Come<br>find <em>us.</em></h2>
+    <div class="contact-info-grid">
+      <div class="info-cell">
+        <div class="ic-icon">📍</div>
+        <div class="ic-lbl">Address</div>
+        <div class="ic-val">3, 8th Main Road<br>Koramangala 4th Block<br>Bangalore — 560034</div>
+      </div>
+      <div class="info-cell">
+        <div class="ic-icon">📞</div>
+        <div class="ic-lbl">Phone</div>
+        <div class="ic-val">
+          <a href="tel:8040949490">+91 80 4094 9490</a><br>
+          <a href="tel:9945602562">+91 99456 02562</a><br>
+          <a href="tel:9945692562">+91 99456 92562</a>
+        </div>
+      </div>
+      <div class="info-cell">
+        <div class="ic-icon">✉️</div>
+        <div class="ic-lbl">Email</div>
+        <div class="ic-val"><a href="mailto:the.hole.in.the.wall.cafe@gmail.com">the.hole.in.the.wall<br>.cafe@gmail.com</a></div>
+      </div>
+      <div class="info-cell">
+        <div class="ic-icon">🛵</div>
+        <div class="ic-lbl">Order Delivery</div>
+        <div class="ic-val">
+          <a href="https://www.zomato.com/bangalore/the-hole-in-the-wall-cafe-koramangala-4th-block-bangalore" target="_blank">Zomato ↗</a><br>
+          <a href="https://www.swiggy.com/restaurants/the-hole-in-the-wall-cafe-4th-block-koramangala-bangalore-232" target="_blank">Swiggy ↗</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTTOM: dark hours + social cards -->
+  <div class="contact-dark">
+
+    <!-- Hours panel -->
+    <div class="hours-panel rv-l">
+      <div class="hours-top">
+        <div class="hours-h2">Opening<br>Hours</div>
+        <div class="hours-badge">Tue–Sun Open</div>
+      </div>
+      <div class="hours-table">
+        <div class="hours-tr">
+          <span class="hours-day">Tuesday — Friday</span>
+          <span class="hours-time">8:00 AM — 9:00 PM</span>
+        </div>
+        <div class="hours-tr">
+          <span class="hours-day">Saturday — Sunday</span>
+          <span class="hours-time">8:00 AM — 9:00 PM</span>
+        </div>
+        <div class="hours-tr">
+          <span class="hours-day">Monday</span>
+          <span class="hours-closed-pill">Closed</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Social cards panel -->
+    <div class="social-panel rv-r">
+      <div class="social-h">Follow<br>Us</div>
+      <div class="social-sub">Stay connected with THITWC</div>
+      <div class="social-cards">
+        <a href="https://www.instagram.com/theholeinthewallcafe/" class="social-card" target="_blank">
+          <div class="sc-color-bar sc-ig"></div>
+          <div class="sc-icon-wrap">📸</div>
+          <div class="sc-body">
+            <div class="sc-platform">Instagram</div>
+            <div class="sc-handle">@theholeinthewallcafe</div>
+          </div>
+          <div class="sc-arrow">↗</div>
+        </a>
+        <a href="https://www.facebook.com/theholeinthewallcafe/" class="social-card" target="_blank">
+          <div class="sc-color-bar sc-fb"></div>
+          <div class="sc-icon-wrap">👍</div>
+          <div class="sc-body">
+            <div class="sc-platform">Facebook</div>
+            <div class="sc-handle">theholeinthewallcafe</div>
+          </div>
+          <div class="sc-arrow">↗</div>
+        </a>
+        <a href="https://twitter.com/thitwc" class="social-card" target="_blank">
+          <div class="sc-color-bar sc-tw"></div>
+          <div class="sc-icon-wrap">🐦</div>
+          <div class="sc-body">
+            <div class="sc-platform">Twitter / X</div>
+            <div class="sc-handle">@thitwc</div>
+          </div>
+          <div class="sc-arrow">↗</div>
+        </a>
+        <a href="https://www.zomato.com/bangalore/the-hole-in-the-wall-cafe-koramangala-4th-block-bangalore" class="social-card" target="_blank">
+          <div class="sc-color-bar sc-zm"></div>
+          <div class="sc-icon-wrap">🍽️</div>
+          <div class="sc-body">
+            <div class="sc-platform">Zomato</div>
+            <div class="sc-handle">The Hole in the Wall Cafe</div>
+          </div>
+          <div class="sc-arrow">↗</div>
+        </a>
+        <a href="https://www.swiggy.com/restaurants/the-hole-in-the-wall-cafe-4th-block-koramangala-bangalore-232" class="social-card" target="_blank">
+          <div class="sc-color-bar sc-sw"></div>
+          <div class="sc-icon-wrap">🛵</div>
+          <div class="sc-body">
+            <div class="sc-platform">Swiggy</div>
+            <div class="sc-handle">Order for Delivery</div>
+          </div>
+          <div class="sc-arrow">↗</div>
+        </a>
+      </div>
+    </div>
+
+    <!-- Map strip full width -->
+    <div class="map-strip">
+      <div class="map-strip-left">
+        <div class="map-dot"></div>
+        <span class="map-addr">3, 8th Main Road, Koramangala 4th Block, Bangalore — 560034</span>
+      </div>
+      <a href="https://g.page/THITWC" class="map-strip-right" target="_blank">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z"/></svg>
+        Get Directions on Google Maps ↗
+      </a>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══ NEWSLETTER ═══ -->
+<div class="newsletter-strip rv">
+  <div class="nl-left">
+    <div class="nl-h">Stay in the<br>loop.</div>
+    <div class="nl-sub">New dishes, events & specials — straight to your inbox.</div>
+  </div>
+  <div class="nl-form">
+    <input class="nl-input" type="email" placeholder="your@email.com"/>
+    <button class="nl-btn">Subscribe</button>
+  </div>
+</div>
+
+<!-- ═══ FOOTER ═══ -->
+<footer>
+
+  <!-- Giant ghosted wordmark -->
+  <div class="footer-wordmark">
+    <div class="footer-wordmark-text">THE <em>HOLE</em> IN THE WALL CAFE</div>
+  </div>
+
+  <!-- Main grid -->
+  <div class="footer-main">
+    <!-- Brand col -->
+    <div class="footer-col">
+      <div class="footer-brand-logo">The <em>Hole</em> in<br>the Wall Cafe</div>
+      <p class="footer-brand-desc">"A humble Koramangala garage that became Bangalore's most beloved continental kitchen. Born 2009. Still going strong."</p>
+      <div class="footer-delivery-btns">
+        <a href="https://www.zomato.com/bangalore/the-hole-in-the-wall-cafe-koramangala-4th-block-bangalore" class="fdb" target="_blank">
+          <span class="fdb-dot fdb-dot-z"></span>Order on Zomato
+        </a>
+        <a href="https://www.swiggy.com/restaurants/the-hole-in-the-wall-cafe-4th-block-koramangala-bangalore-232" class="fdb" target="_blank">
+          <span class="fdb-dot fdb-dot-s"></span>Order on Swiggy
+        </a>
+      </div>
+    </div>
+    <!-- Nav col -->
+    <div class="footer-col">
+      <div class="footer-col-h">Navigate</div>
+      <ul class="footer-nav-links">
+        <li><a href="#about">Our Story</a></li>
+        <li><a href="#menu">The Menu</a></li>
+        <li><a href="#gallery">Gallery</a></li>
+        <li><a href="#services">Why THITWC</a></li>
+        <li><a href="#contact">Visit Us</a></li>
+        <li><a href="https://theholeinthewallcafe.org/onlineorder/" target="_blank">Order Online</a></li>
+      </ul>
+    </div>
+    <!-- Outlets col -->
+    <div class="footer-col">
+      <div class="footer-col-h">Outlets</div>
+      <div class="footer-outlets">
+        <div class="outlet-item">
+          <div class="outlet-name">Koramangala</div>
+          <div class="outlet-area">3, 8th Main Rd, 4th Block</div>
+        </div>
+        <div class="outlet-item">
+          <div class="outlet-name">Domlur</div>
+          <div class="outlet-area">Bangalore</div>
+        </div>
+        <div class="outlet-item">
+          <div class="outlet-name">Kammanahalli</div>
+          <div class="outlet-area">Bangalore</div>
+        </div>
+        <div class="outlet-item">
+          <div class="outlet-name">Hyderabad</div>
+          <div class="outlet-area">Coming strong</div>
+        </div>
+      </div>
+    </div>
+    <!-- Contact col -->
+    <div class="footer-col">
+      <div class="footer-col-h">Contact</div>
+      <ul class="footer-nav-links">
+        <li><a href="tel:8040949490">+91 80 4094 9490</a></li>
+        <li><a href="tel:9945602562">+91 99456 02562</a></li>
+        <li><a href="mailto:the.hole.in.the.wall.cafe@gmail.com" style="font-size:9px;letter-spacing:0.1em;">the.hole.in.the.wall<br>.cafe@gmail.com</a></li>
+      </ul>
+      <div style="margin-top:28px;">
+        <div class="footer-col-h" style="font-size:16px;margin-bottom:16px;">Hours</div>
+        <div style="font-size:10px;letter-spacing:0.12em;color:var(--muted);line-height:2;">
+          Tue — Sun<br>
+          <span style="color:var(--cream);">8 AM — 9 PM</span><br>
+          Monday<br>
+          <span style="color:var(--rust);">Closed</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom bar -->
+  <div class="footer-bottom">
+    <span class="footer-copy">© 2025 Hope Faith Love Cafes Pvt Ltd · All rights reserved</span>
+    <div class="footer-social-row">
+      <a href="https://www.instagram.com/theholeinthewallcafe/" class="fsoc" target="_blank"><span>IG</span></a>
+      <a href="https://www.facebook.com/theholeinthewallcafe/" class="fsoc" target="_blank"><span>FB</span></a>
+      <a href="https://twitter.com/thitwc" class="fsoc" target="_blank"><span>TW</span></a>
+    </div>
+  </div>
+</footer>
+
+<script>
+gsap.registerPlugin(ScrollTrigger);
+
+/* ─── CURSOR ─── */
+const C = document.getElementById('C'), C2 = document.getElementById('C2');
+let mx=0,my=0,tx=0,ty=0;
+document.addEventListener('mousemove', e => {
+  mx=e.clientX; my=e.clientY;
+  gsap.to(C, {x:mx,y:my,duration:.05});
+});
+setInterval(() => {
+  tx+=(mx-tx)*.12; ty+=(my-ty)*.12;
+  gsap.set(C2, {x:tx,y:ty});
+},16);
+document.querySelectorAll('a,button').forEach(el => {
+  el.addEventListener('mouseenter', () => { gsap.to(C,{width:40,height:40,background:'var(--amber)',duration:.2}); gsap.to(C2,{opacity:0,duration:.15}); });
+  el.addEventListener('mouseleave', () => { gsap.to(C,{width:10,height:10,background:'var(--amber)',duration:.2}); gsap.to(C2,{opacity:.5,duration:.2}); });
+});
+
+/* ─── LOADER ─── */
+window.addEventListener('load', () => {
+  const bar = document.getElementById('ldbar');
+  const sub = document.getElementById('ldsub');
+  gsap.from('#ldw span', {y:'100%', duration:.9, ease:'power3.out'});
+  setTimeout(() => { bar.style.width='100%'; }, 80);
+  gsap.to(sub, {opacity:1, duration:.5, delay:.7});
+  setTimeout(() => {
+    gsap.to('#loader', {yPercent:-100, duration:1, ease:'expo.inOut',
+      onComplete: () => { document.getElementById('loader').style.display='none'; initHero(); }
+    });
+  }, 2000);
+});
+
+/* ─── HERO ANIMATIONS — split screen ─── */
+function initHero() {
+  const tl = gsap.timeline({ defaults:{ ease:'power3.out' } });
+
+  // Eyebrow fade
+  tl.to('#heroEyebrow', { opacity:1, y:0, duration:.6 })
+  // Headline words sweep up one by one
+  .to('.hh-word', { y:'0%', duration:.75, stagger:.1, ease:'power3.out' }, '-=.3')
+  // Tagline + btns
+  .to('#heroTagline',  { opacity:1, y:0, duration:.6 }, '-=.2')
+  .to('#heroBtns',     { opacity:1, y:0, duration:.6 }, '-=.45')
+  // Scroll indicator
+  .to('#heroScrollWrap', { opacity:1, duration:.5 }, '-=.3')
+  // Stat bar
+  .to('#heroStatBar', { opacity:1, duration:.6 }, '-=.3')
+  // Stamp badge
+  .to('#heroStamp', { opacity:1, scale:1, duration:.8, ease:'back.out(1.4)' }, '-=.5');
+}
+
+gsap.set('#heroEyebrow', { opacity:0, y:10 });
+gsap.set('#heroTagline,#heroBtns', { opacity:0, y:20 });
+gsap.set('#heroScrollWrap,#heroStatBar', { opacity:0 });
+gsap.set('#heroStamp', { opacity:0, scale:0.6 });
+
+/* ─── SLIDESHOW ─── */
+const slides = document.querySelectorAll('.hero-slide');
+const dots   = document.querySelectorAll('.hero-dot');
+const chip   = document.getElementById('heroChip');
+let current = 0, autoTimer;
+
+function goToSlide(n) {
+  slides[current].classList.remove('active');
+  dots[current].classList.remove('active');
+  current = (n + slides.length) % slides.length;
+  slides[current].classList.add('active');
+  dots[current].classList.add('active');
+  if (chip) {
+    chip.classList.remove('visible');
+    setTimeout(() => {
+      chip.textContent = slides[current].dataset.label;
+      chip.classList.add('visible');
+    }, 200);
+  }
+  resetAuto();
+}
+
+function resetAuto() {
+  clearInterval(autoTimer);
+  autoTimer = setInterval(() => goToSlide(current + 1), 5000);
+}
+
+document.getElementById('heroNext').addEventListener('click', () => goToSlide(current + 1));
+document.getElementById('heroPrev').addEventListener('click', () => goToSlide(current - 1));
+resetAuto();
+
+/* ─── NAV SCROLL ─── */
+window.addEventListener('scroll', () => {
+  document.getElementById('nav').classList.toggle('scrolled', window.scrollY > 60);
+});
+
+/* ─── SCROLL REVEALS ─── */
+document.querySelectorAll('.rv').forEach(el => {
+  gsap.to(el, { opacity:1, y:0, duration:.9, ease:'power3.out',
+    scrollTrigger:{trigger:el, start:'top 86%'} });
+});
+document.querySelectorAll('.rv-l').forEach(el => {
+  gsap.to(el, { opacity:1, x:0, duration:1, ease:'power3.out',
+    scrollTrigger:{trigger:el, start:'top 82%'} });
+});
+document.querySelectorAll('.rv-r').forEach(el => {
+  gsap.to(el, { opacity:1, x:0, duration:1, ease:'power3.out',
+    scrollTrigger:{trigger:el, start:'top 82%'} });
+});
+
+/* ─── GALLERY ITEMS ─── */
+document.querySelectorAll('.gal-item').forEach((el,i) => {
+  gsap.to(el, { opacity:1, y:0, duration:.65, delay:(i%4)*.1, ease:'power2.out',
+    scrollTrigger:{trigger:el, start:'top 92%'} });
+});
+
+/* ─── STAT COUNTERS ─── */
+document.querySelectorAll('.stat-n[data-target]').forEach(el => {
+  const t = +el.dataset.target;
+  ScrollTrigger.create({ trigger:el, start:'top 88%', onEnter:() => {
+    gsap.to({v:0},{v:t, duration:1.6, ease:'power2.out',
+      onUpdate:function(){ el.textContent = Math.round(this.targets()[0].v) + '+'; }
+    });
+  }});
+});
+
+/* ─── MENU TABS ─── */
+function showCat(name, btn) {
+  document.querySelectorAll('.menu-grid').forEach(g => g.style.display='none');
+  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+  const panel = document.getElementById('cat-'+name);
+  panel.style.display='grid';
+  btn.classList.add('active');
+  const cards = panel.querySelectorAll('.menu-card');
+  cards.forEach(c => { c.style.opacity=0; c.style.transform='translateY(24px)'; });
+  cards.forEach((c,i) => gsap.to(c,{opacity:1,y:0,duration:.5,delay:i*.06,ease:'power2.out'}));
+}
+
+/* Initial menu card animation */
+setTimeout(() => {
+  const cards = document.querySelectorAll('#cat-breakfast .menu-card');
+  cards.forEach((c,i) => {
+    ScrollTrigger.create({ trigger:c, start:'top 92%', onEnter:() => {
+      gsap.to(c,{opacity:1,y:0,duration:.55,delay:i*.07,ease:'power2.out'});
+    }});
+  });
+}, 2200);
+
+
+</script>
+</body>
+</html>
