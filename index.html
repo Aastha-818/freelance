@@ -289,7 +289,7 @@ nav.scrolled {
   color: var(--muted); margin-top: 4px;
 }
 
-/* ── SLIDE CONTROLS (bottom-right, over image) ── */
+/* ── SLIDE CONTROLS — sit just above the stat bar ── */
 .hero-controls {
   position: absolute; bottom: 88px; right: 56px; z-index: 4;
   display: flex; gap: 8px;
@@ -303,7 +303,7 @@ nav.scrolled {
 }
 .hero-ctrl:hover { background: var(--amber); color: var(--ink); border-color: var(--amber); }
 
-/* ── SLIDE DOTS ── */
+/* ── SLIDE DOTS — centered, just above stat bar ── */
 .hero-dots {
   position: absolute; bottom: 96px; left: 50%; transform: translateX(-50%);
   z-index: 4; display: flex; gap: 10px; align-items: center;
@@ -314,7 +314,7 @@ nav.scrolled {
 }
 .hero-dot.active { background: var(--amber); width: 28px; border-radius: 3px; }
 
-/* ── CATEGORY CHIP (top-right of image) ── */
+/* ── CATEGORY CHIP — desktop only, won't show on mobile ── */
 .hero-slide-chip {
   position: absolute; top: 36px; right: 56px; z-index: 4;
   background: rgba(15,13,9,0.55); backdrop-filter: blur(10px);
@@ -942,41 +942,51 @@ footer {
 
   /* ── HERO ── */
   #hero { height: 100svh; min-height: 600px; }
-  .hero-left-panel { width: 100%; justify-content: flex-end; }
+  .hero-left-panel { width: 100%; }
   .hero-left-top {
-    padding: 100px 20px 20px;
+    padding: 90px 20px 16px;
     justify-content: flex-end;
     flex: 1;
   }
   .hero-eyebrow {
-    font-size: 7px; letter-spacing: 0.25em;
-    gap: 8px; margin-bottom: 18px;
-    flex-wrap: wrap;
+    font-size: 7px; letter-spacing: 0.2em;
+    gap: 8px; margin-bottom: 16px;
   }
-  .hero-eyebrow-line { width: 20px; }
-  .hero-headline { font-size: clamp(48px, 14vw, 72px); line-height: 0.88; }
-  .hero-tagline { font-size: 14px; margin-top: 14px; max-width: 100%; }
-  .hero-btn-row { gap: 10px; margin-top: 24px; flex-wrap: wrap; }
-  .btn-solid { padding: 13px 28px; font-size: 9px; }
-  .btn-ghost { padding: 13px 28px; font-size: 9px; }
+  .hero-eyebrow-line { width: 16px; }
+  .hero-headline { font-size: clamp(46px, 13vw, 72px); line-height: 0.88; }
+  .hero-tagline { font-size: 13px; margin-top: 12px; max-width: 100%; line-height: 1.6; }
+  .hero-btn-row { gap: 8px; margin-top: 20px; flex-wrap: wrap; }
+  .btn-solid { padding: 12px 24px; font-size: 9px; flex: 1; text-align: center; }
+  .btn-ghost { padding: 12px 24px; font-size: 9px; flex: 1; text-align: center; }
   .hero-scroll-wrap { display: none; }
 
-  /* Stat bar — 2 cols on mobile */
+  /* Stat bar — always 4 cols, smaller padding, at very bottom */
   .hero-stat-bar {
-    grid-template-columns: 1fr 1fr;
-    position: static; /* flows naturally below content */
+    grid-template-columns: repeat(4, 1fr);
+    position: absolute; bottom: 0; left: 0; right: 0;
   }
-  .hsc-num { font-size: 22px; }
-  .hsc-lbl { font-size: 7px; }
+  .hero-stat-cell { padding: 14px 0; }
+  .hsc-num { font-size: 20px; }
+  .hsc-lbl { font-size: 6px; letter-spacing: 0.15em; }
 
-  /* Controls compact */
-  .hero-controls { bottom: 80px; right: 16px; gap: 6px; }
-  .hero-ctrl { width: 38px; height: 38px; font-size: 14px; }
-  .hero-dots { bottom: 86px; gap: 7px; }
+  /* Controls: small, just above stat bar, on the RIGHT */
+  .hero-controls {
+    bottom: 72px; right: 16px;
+    gap: 6px;
+  }
+  .hero-ctrl { width: 36px; height: 36px; font-size: 13px; }
+
+  /* Dots: centered, same level as controls */
+  .hero-dots {
+    bottom: 80px;
+    left: 20px; transform: none; /* left-align on mobile */
+  }
   .hero-dot { width: 5px; height: 5px; }
-  .hero-dot.active { width: 20px; }
+  .hero-dot.active { width: 18px; }
+
+  /* HIDE chip on mobile — no room next to hamburger */
+  .hero-slide-chip { display: none; }
   .hero-stamp { display: none; }
-  .hero-slide-chip { top: 20px; right: 16px; font-size: 8px; padding: 7px 14px; }
 
   /* ── MARQUEE ── */
   .marquee-item { font-size: 14px; padding: 0 18px; }
@@ -1088,11 +1098,16 @@ footer {
   .hero-headline { font-size: clamp(56px, 12vw, 96px); }
   .hero-tagline { font-size: 15px; max-width: 380px; }
   .hero-btn-row { gap: 12px; margin-top: 28px; }
-  .hero-stat-bar { grid-template-columns: repeat(4,1fr); }
+  .hero-stat-bar { grid-template-columns: repeat(4,1fr); position: absolute; bottom: 0; left: 0; right: 0; }
+  .hero-stat-cell { padding: 16px 0; }
   .hero-scroll-wrap { padding: 0 32px 28px; }
   .hero-stamp { display: none; }
-  .hero-slide-chip { top: 24px; right: 24px; }
-  .hero-controls { bottom: 90px; right: 24px; }
+  /* hide chip — hamburger menu is in top-right */
+  .hero-slide-chip { display: none; }
+  /* dots left-aligned, controls right — both just above stat bar */
+  .hero-dots { bottom: 86px; left: 32px; transform: none; }
+  .hero-controls { bottom: 78px; right: 28px; }
+  .hero-ctrl { width: 42px; height: 42px; font-size: 15px; }
 
   #about, #menu, #gallery, #services { padding: 72px 32px; }
   .about-grid { grid-template-columns: 1fr; gap: 40px; }
